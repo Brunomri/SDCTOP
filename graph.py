@@ -1,6 +1,4 @@
-import networkx as nx 
-import matplotlib.pyplot as plt
-import sys, random as rnd
+import networkx as nx, matplotlib.pyplot as plt, sys, random as rnd
 from itertools import permutations
 
 # Create a complete oriented graph containing a specific number of vertices with random values 
@@ -23,17 +21,73 @@ def create_graph(num_v, draw = False):
 
     # Print graph information
     weight = nx.get_edge_attributes(G, 'weight')
-    print("|V(G)| = {}\nV = \nDemand: {}\nProfit: {}\n".format(G.number_of_nodes(), nx.get_node_attributes(G, "demand"), nx.get_node_attributes(G, "profit")))
+    print("|V(G)| = {}\nV = \nProfit: {}\nDemand: {}\n".format(G.number_of_nodes(), nx.get_node_attributes(G, "profit"), nx.get_node_attributes(G, "demand")))
     print("|E(G)| = {}\nE = \n{}\n".format(G.number_of_edges(), nx.get_edge_attributes(G, 'weight')))
 
     if draw == True:
         # Show graph representation
-        plt.figure(figsize = (12, 12)) 
-        nx.draw_networkx(G, pos = nx.circular_layout(G), with_labels=True, node_color ='green')
-        nx.draw_networkx_edge_labels(G,pos = nx.circular_layout(G), edge_labels=weight)
-        plt.show()
+        draw_graph(G)
 
     return G
+
+# Draw and display graph representation
+def draw_graph(G):
+    weight = nx.get_edge_attributes(G, 'weight')
+    plt.figure(figsize = (12, 12)) 
+    nx.draw_networkx(G, pos = nx.circular_layout(G), with_labels=True, node_color ='green')
+    nx.draw_networkx_edge_labels(G,pos = nx.circular_layout(G), edge_labels=weight)
+    plt.show()
+
+# Return a list of all cycles in graph G, with an optional root vertex
+def find_all_cycles(G, root = None):
+    C = nx.simple_cycles(G)
+    cycles_list = []
+
+    if root == None:
+        #print("All cycles in G:\n")
+        for cycle in C:
+            #print(cycle)
+            cycles_list.append(cycle)
+    else:
+        #print("All cycles in G with root {}\n:".format(root))
+        for cycle in C:
+            if root in cycle:
+                #print(cycle)
+                cycles_list.append(cycle)
+
+    cycles_list.sort(key = len)
+    #print(cycles_list)
+    return cycles_list
+
+# Return a dictionary containing the attributes profit, demand and weight of a cycle
+def get_cycle_attr(G, cycle):
+    profit, demand, weight = 0, 0, 0
+    #root = cycle[0]
+    cycle_attr = {}
+
+    for customer in range (0, len(cycle), 1):
+        profit += G.nodes.get(cycle[customer]).get("profit")
+        demand += G.nodes.get(cycle[customer]).get("demand")
+
+        if customer < (len(cycle) - 1):
+            weight += G.edges.get((cycle[customer], cycle[customer + 1])).get("weight")
+        else:
+            weight += G.edges.get((cycle[len(cycle) - 1], cycle[0])).get("weight")
+    
+    cycle_attr = {"profit" : profit, "demand" : demand, "weight" : weight}
+    #print("The cycle \n{}\n has attributes:\n{}\n".format(cycle, cycle_attr))
+    return cycle_attr
+
+# Return a nested dictionary where cycles are keys and their attributes profit, demand and weigth are values. A root vertex for the cycles is optional.
+def get_all_cycles_attr(G, root = None):
+    cycles_list = find_all_cycles(G, 0)
+
+    all_cycles_attr = {}
+    for cycle in cycles_list:
+        all_cycles_attr[tuple(cycle)] = get_cycle_attr(G, cycle)
+
+    print("All cycles and their attributes:\n{}\n".format(all_cycles_attr))
+    return all_cycles_attr
 
 # Verify user input
 if __name__ == "__main__":
