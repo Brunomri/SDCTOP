@@ -7,35 +7,55 @@ def create_graph(num_v, draw = False):
     
     # Create empty graph
     G = nx.DiGraph()
+    total_profit, total_demand, total_weight = 0, 0, 0
 
     # Add vertex 0 as the depot
     G.add_node(0, demand = 0, profit = 0)
 
     # Add vertices with attributes for demand and profit of customer
     for i in range(1, num_v):
-        G.add_node(i, demand = rnd.randint(1, 1000), profit = rnd.randint(1, 1000))
+        profit = rnd.randint(1, 1000)
+        demand = rnd.randint(1, 1000)
+        G.add_node(i, profit = profit, demand = demand)
+        total_profit += profit
+        total_demand += demand
 
-    # Add edges with an attribute for elapsed time between all permutations of vertices
+    # Add edges with an attribute for elapsed time (weight) between all permutations of vertices
     for e in permutations(G.nodes, 2):
-        G.add_edge(e[0], e[1], weight = rnd.randint(1, 120))
+        weight = rnd.randint(1, 60)
+        G.add_edge(e[0], e[1], weight = weight)
+        total_weight += weight
 
-    # Print graph information
+    G.graph["profit"] = total_profit
+    G.graph["demand"] = total_demand
+    G.graph["weight"] = total_weight
+
+    # Show graph information
+    graph_info(G, True)
+
+    return G
+
+# Print graph information
+def graph_info(G, draw = False):
+
     weight = nx.get_edge_attributes(G, 'weight')
     print("|V(G)| = {}\nV = \nProfit: {}\nDemand: {}\n".format(G.number_of_nodes(), nx.get_node_attributes(G, "profit"), nx.get_node_attributes(G, "demand")))
     print("|E(G)| = {}\nE = \n{}\n".format(G.number_of_edges(), nx.get_edge_attributes(G, 'weight')))
+    print("Total profit = {}".format(G.graph["profit"]))
+    print("Total demand = {}".format(G.graph["demand"]))
+    print("Total weight = {}\n".format(G.graph["weight"]))
 
     if draw == True:
         # Show graph representation
         draw_graph(G)
 
-    return G
-
-# Draw and display graph representation
+# Draw graph representation
 def draw_graph(G):
     weight = nx.get_edge_attributes(G, 'weight')
-    plt.figure(figsize = (12, 12)) 
+    fig = plt.figure(figsize = (12, 12))
     nx.draw_networkx(G, pos = nx.circular_layout(G), with_labels=True, node_color ='green')
     nx.draw_networkx_edge_labels(G,pos = nx.circular_layout(G), edge_labels=weight)
+    fig.canvas.set_window_title("Graph")
     plt.show()
 
 # Return a list of all cycles in graph G, with an optional root vertex
