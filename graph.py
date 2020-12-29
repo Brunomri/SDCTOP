@@ -5,7 +5,7 @@ from itertools import permutations
 # for customers demand and profit and edges with random weights
 def create_graph(num_v, draw = False):
     
-    # Create empty graph
+    # Create empty directed graph
     G = nx.DiGraph()
     total_profit, total_demand, total_weight = 0, 0, 0
 
@@ -26,24 +26,82 @@ def create_graph(num_v, draw = False):
         G.add_edge(e[0], e[1], weight = weight)
         total_weight += weight
 
+    # Graph attributes are the sum of the corresponding
+    # attributes for each edge and vertex
     G.graph["profit"] = total_profit
     G.graph["demand"] = total_demand
     G.graph["weight"] = total_weight
 
     # Show graph information
-    graph_info(G, True)
+    if draw == True:
+        graph_info(G, True)
+    else:
+        graph_info(G, False)
 
     return G
+
+# Create cycles in graph G based on a cycles attributes dictionary
+def create_cycles(G, all_cycles_attr, draw = False):
+    cycles = []
+
+    # Create one cycle for each entry in the dictionary
+    for cycle in all_cycles_attr:
+        # Create empty directed graph
+        C = nx.DiGraph()
+        #total_profit, total_demand, total_weight = 0, 0, 0
+
+        # Add vertices from the cycle dictionary keys and get their profit and
+        # demand attributes from original graph G
+        for v in cycle:
+            profit = G.nodes.get(v).get("profit")
+            demand = G.nodes.get(v).get("demand")
+            C.add_node(v, profit = profit, demand = demand)
+            #total_profit += profit
+            #total_demand += demand
+
+        # Add edges from the cycle dictionary keys and get their weight 
+        # from original graph G
+        nodes = list(C.nodes.keys())
+        for v in range (len(nodes) - 1):
+            v1 = nodes[v]
+            v2 = nodes[v + 1]
+            e = (v1, v2)
+            weight = G.edges.get(e).get("weight")
+            C.add_edge(v1, v2, weight = weight)
+            #total_weight += weight
+
+        # Add edge connecting the first and last vertices from the cycle
+        e = (nodes[len(nodes) - 1], nodes[0])
+        weight = G.edges.get(e).get("weight")
+        C.add_edge(e[0], e[1], weight = weight)
+        #total_weight += weight
+
+        # Cycle attributes are the sum of the corresponding
+        # attributes for each edge and vertex
+        C.graph["profit"] = all_cycles_attr[cycle]["profit"]
+        C.graph["demand"] = all_cycles_attr[cycle]["demand"]
+        C.graph["weight"] = all_cycles_attr[cycle]["weight"]
+
+        if draw == True:
+            graph_info(C, True)
+        else:
+            graph_info(C, False)
+
+        cycles.append(C)
+
+    return cycles
 
 # Print graph information
 def graph_info(G, draw = False):
 
     weight = nx.get_edge_attributes(G, 'weight')
+    print("-------------------------------------------")
     print("|V(G)| = {}\nV = \nProfit: {}\nDemand: {}\n".format(G.number_of_nodes(), nx.get_node_attributes(G, "profit"), nx.get_node_attributes(G, "demand")))
     print("|E(G)| = {}\nE = \n{}\n".format(G.number_of_edges(), nx.get_edge_attributes(G, 'weight')))
     print("Total profit = {}".format(G.graph["profit"]))
     print("Total demand = {}".format(G.graph["demand"]))
-    print("Total weight = {}\n".format(G.graph["weight"]))
+    print("Total weight = {}".format(G.graph["weight"]))
+    print("-------------------------------------------\n")
 
     if draw == True:
         # Show graph representation
@@ -107,6 +165,7 @@ def get_all_cycles_attr(G, root = None):
         all_cycles_attr[tuple(cycle)] = get_cycle_attr(G, cycle)
 
     print("All cycles and their attributes:\n{}\n".format(all_cycles_attr))
+    #create_cycles(G, all_cycles_attr, True)
     return all_cycles_attr
 
 # Verify user input
