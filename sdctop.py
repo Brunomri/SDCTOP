@@ -17,6 +17,6 @@ else:
     if num_customers >= 2 and v_capacity >= 1 and num_vehicles >= 1 and time_lim >= 1:
         G = g.create_graph(num_customers + 1)
         all_routes = g.get_all_cycles_attr(G, 0)
-        s.solve(all_routes, num_customers, v_capacity, num_vehicles, time_lim)
+        solution = s.solve(G, all_routes, num_customers, v_capacity, num_vehicles, time_lim)
     else:
         sys.exit("Error: #customer needs to be >= 2, vehicle capacity >= 1, #vehicles >= 1, route time limit >= 1")
