@@ -1,6 +1,8 @@
 import networkx as nx, matplotlib.pyplot as plt, sys, random as rnd
 from itertools import permutations
 
+# Functions to manage graph instances
+
 # Create a complete oriented graph containing a specific number of vertices with random values 
 # for customers demand and profit and edges with random weights
 def create_graph(num_v, draw = False):
@@ -48,7 +50,6 @@ def create_cycles(G, all_cycles_attr, draw = False):
     for cycle in all_cycles_attr:
         # Create empty directed graph
         C = nx.DiGraph()
-        #total_profit, total_demand, total_weight = 0, 0, 0
 
         # Add vertices from the cycle dictionary keys and get their profit and
         # demand attributes from original graph G
@@ -56,8 +57,6 @@ def create_cycles(G, all_cycles_attr, draw = False):
             profit = G.nodes.get(v).get("profit")
             demand = G.nodes.get(v).get("demand")
             C.add_node(v, profit = profit, demand = demand)
-            #total_profit += profit
-            #total_demand += demand
 
         # Add edges from the cycle dictionary keys and get their weight 
         # from original graph G
@@ -68,13 +67,11 @@ def create_cycles(G, all_cycles_attr, draw = False):
             e = (v1, v2)
             weight = G.edges.get(e).get("weight")
             C.add_edge(v1, v2, weight = weight)
-            #total_weight += weight
 
         # Add edge connecting the first and last vertices from the cycle
         e = (nodes[len(nodes) - 1], nodes[0])
         weight = G.edges.get(e).get("weight")
         C.add_edge(e[0], e[1], weight = weight)
-        #total_weight += weight
 
         # Cycle attributes are the sum of the corresponding
         # attributes for each edge and vertex
@@ -134,13 +131,11 @@ def find_all_cycles(G, root = None):
                 cycles_list.append(cycle)
 
     cycles_list.sort(key = len)
-    #print(cycles_list)
     return cycles_list
 
 # Return a dictionary containing the attributes profit, demand and weight of a cycle
 def get_cycle_attr(G, cycle):
     profit, demand, weight = 0, 0, 0
-    #root = cycle[0]
     cycle_attr = {}
 
     for customer in range (0, len(cycle), 1):
@@ -153,7 +148,6 @@ def get_cycle_attr(G, cycle):
             weight += G.edges.get((cycle[len(cycle) - 1], cycle[0])).get("weight")
     
     cycle_attr = {"profit" : profit, "demand" : demand, "weight" : weight}
-    #print("The cycle \n{}\n has attributes:\n{}\n".format(cycle, cycle_attr))
     return cycle_attr
 
 # Return a nested dictionary where cycles are keys and their attributes profit, demand and weigth are values. A root vertex for the cycles is optional.
@@ -165,7 +159,6 @@ def get_all_cycles_attr(G, root = None):
         all_cycles_attr[tuple(cycle)] = get_cycle_attr(G, cycle)
 
     print("All cycles and their attributes:\n{}\n".format(all_cycles_attr))
-    #create_cycles(G, all_cycles_attr, True)
     return all_cycles_attr
 
 # Verify user input
