@@ -1,4 +1,4 @@
-import graph as g
+import graph as g, copy
 
 # Solve an instance of the SDCTOP problem
 
@@ -63,8 +63,42 @@ def initial_sol(G, all_routes, num_customers, v_capacity, num_vehicles, time_lim
     g.create_cycles(G, selected_routes, True)
     solution[tuple(selected_routes.keys())] = {"profit" : total_profit, "time" : total_time, "demand" : total_delivered}
     print("Initial solution:\n{}\n".format(solution))
-    return solution
+    return solution, selected_routes
+
+# Find the neighbourhood of a given solution. The neighborhood is built upon the selected
+# routes by adding or removing one single customer.
+def find_neighborhood(G, all_routes, selected_routes):
+    neighborhood = {}
+
+    # Iterate over the selected routes to find their neighbors by 
+    # adding or removing one single customer
+    for route in selected_routes:
+        unvisited = set(route).symmetric_difference(G.nodes)
+
+        # If the route doesn't visit all the customers, a new unvisited
+        # customer can be added
+        if len(route) < len(G.nodes):
+            for customer in unvisited:
+                l_route = list(route)
+                l_route.append(customer)
+                new_route = tuple(l_route)
+                if new_route not in neighborhood:
+                    neighborhood[new_route] = all_routes[new_route]
+
+        # If the route visits at least 2 customers, one visited
+        # customer can be removed
+        if len(route) > 2:
+            for customer in route[1:]:
+                l_route = list(route)
+                l_route.remove(customer)
+                new_route = tuple(l_route)
+                if new_route not in neighborhood:
+                    neighborhood[new_route] = all_routes[new_route]
+
+    return neighborhood
 
 def solve(G, all_routes, num_customers, v_capacity, num_vehicles, time_lim):
-    init_s = initial_sol(G, all_routes, num_customers, v_capacity, num_vehicles, time_lim)
+    all_routes2 = copy.deepcopy(all_routes)
+    init_s, selected_routes = initial_sol(G, all_routes2, num_customers, v_capacity, num_vehicles, time_lim)
+    neighborhood = find_neighborhood(G, all_routes, selected_routes)
     return init_s
