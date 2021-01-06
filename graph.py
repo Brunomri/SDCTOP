@@ -5,7 +5,7 @@ from itertools import permutations
 
 # Create a complete oriented graph containing a specific number of vertices with random values 
 # for customers demand and profit and edges with random weights
-def create_graph(num_v, draw = False):
+def create_graph(num_v, draw = False, save_graph = False):
     
     # Create empty directed graph
     G = nx.DiGraph()
@@ -36,9 +36,9 @@ def create_graph(num_v, draw = False):
 
     # Show graph information
     if draw == True:
-        graph_info(G, True)
+        graph_info(G, save_graph, True)
     else:
-        graph_info(G, False)
+        graph_info(G, save_graph, False)
 
     return G
 
@@ -89,7 +89,7 @@ def create_cycles(G, all_cycles_attr, draw = False):
     return cycles
 
 # Print graph information
-def graph_info(G, draw = False):
+def graph_info(G, save_graph, draw = False):
 
     weight = nx.get_edge_attributes(G, 'weight')
     print("-------------------------------------------")
@@ -100,18 +100,19 @@ def graph_info(G, draw = False):
     print("Total weight = {}".format(G.graph["weight"]))
     print("-------------------------------------------\n")
 
-    if draw == True:
-        # Show graph representation
-        draw_graph(G)
+    draw_graph(G, save_graph, draw)
 
 # Draw graph representation
-def draw_graph(G):
+def draw_graph(G, save_graph, draw):
     weight = nx.get_edge_attributes(G, 'weight')
     fig = plt.figure(figsize = (12, 12))
     nx.draw_networkx(G, pos = nx.circular_layout(G), with_labels=True, node_color ='green')
     nx.draw_networkx_edge_labels(G,pos = nx.circular_layout(G), edge_labels=weight)
+    if save_graph:
+        nx.write_gpickle(G, 'graph.gpl')
     fig.canvas.set_window_title("Graph")
-    plt.show()
+    if draw:
+        plt.show()
 
 # Return a list of all cycles in graph G, with an optional root vertex
 def find_all_cycles(G, root = None):
