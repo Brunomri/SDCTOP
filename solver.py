@@ -329,5 +329,7 @@ def solve(G, all_routes, num_customers, v_capacity, num_vehicles, time_lim, tenu
     end = time.time()
     runtime = end - start
     best_solution_info(G, v_capacity, num_vehicles, time_lim, tenure, init_s, best_sol, runtime, instance)
+    print("Show details from the initial solution:")
     g.create_cycles(G, selected_routes, True, "Initial Solution")
+    print("Show details from the best solution:")
     g.create_cycles(G, best_sol, True, "Best Solution")
