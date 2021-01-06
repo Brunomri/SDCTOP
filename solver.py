@@ -64,9 +64,9 @@ def initial_sol(G, all_routes, num_customers, v_capacity, num_vehicles, time_lim
                             all_routes.pop(route)
 
     # Display selected routes and build initial solution
-    g.create_cycles(G, selected_routes)
-    solution[tuple(selected_routes.keys())] = {"profit" : total_profit, "time" : total_time, "demand" : total_delivered}
+    solution[tuple(selected_routes.keys())] = {"profit" : total_profit, "demand" : total_delivered, "weight" : total_time}
     print("Initial solution:\n{}\n".format(solution))
+    g.create_cycles(G, selected_routes)
     return solution, selected_routes
 
 # Find the neighbourhood of a given solution. The neighborhood is built upon the selected
@@ -148,7 +148,7 @@ def tabu_search(G, all_routes, num_customers, v_capacity, num_vehicles, time_lim
                 if len(new_candidate) < num_vehicles and candidate_time <= time_lim:
                     candidate_demand = all_routes[candidate_route]["demand"]
                     # If the demand of the current candidate route is less than the vehicle capacity, all customers
-                    # will have their demand fulfilled no split deliveries are required and this route is added to the
+                    # will have their demand fulfilled, no split deliveries are required and this route is added to the
                     # current candidate solution
                     if candidate_demand <= v_capacity:
                         candidate_profit = all_routes[candidate_route]["profit"]
@@ -220,7 +220,7 @@ def tabu_search(G, all_routes, num_customers, v_capacity, num_vehicles, time_lim
                                     available_demand = 0
 
                             # After all customers are examined, the candidate route is added to the candidate solution
-                            new_candidate[candidate_route] = {"profit" : candidate_profit, "time" : candidate_time, "demand" : candidate_demand}
+                            new_candidate[candidate_route] = {"profit" : candidate_profit, "weight" : candidate_time, "demand" : candidate_demand}
 
                             total_profit += candidate_profit
                             total_demand += candidate_demand
@@ -267,6 +267,7 @@ def tabu_search(G, all_routes, num_customers, v_capacity, num_vehicles, time_lim
                 non_improving += 1
     
     print("Best solution:\n{}\n".format(best_sol))
+    g.create_cycles(G, best_sol)
     # After meeting the stop criterion, return the best solution
     return best_sol
 
