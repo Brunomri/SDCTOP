@@ -123,14 +123,17 @@ def find_all_cycles(G, root = None):
         for cycle in C:
             #print(cycle)
             cycles_list.append(cycle)
+            print("#Cycles = {}".format(len(cycles_list)), end = "\r")
     else:
         #print("All cycles in G with root {}\n:".format(root))
         for cycle in C:
             if root in cycle:
                 #print(cycle)
                 cycles_list.append(cycle)
+                print("#Cycles = {}".format(len(cycles_list)), end = "\r")
 
     cycles_list.sort(key = len)
+    print("#Cycles = {}".format(len(cycles_list)))
     return cycles_list
 
 # Return a dictionary containing the attributes profit, demand and weight of a cycle
@@ -152,13 +155,14 @@ def get_cycle_attr(G, cycle):
 
 # Return a nested dictionary where cycles are keys and their attributes profit, demand and weigth are values. A root vertex for the cycles is optional.
 def get_all_cycles_attr(G, root = None):
+    print("Finding all cycles\n")
     cycles_list = find_all_cycles(G, 0)
 
     all_cycles_attr = {}
     for cycle in cycles_list:
         all_cycles_attr[tuple(cycle)] = get_cycle_attr(G, cycle)
 
-    print("All cycles and their attributes:\n{}\n".format(all_cycles_attr))
+    #print("All cycles and their attributes:\n{}\n".format(all_cycles_attr))
     return all_cycles_attr
 
 # Verify user input
