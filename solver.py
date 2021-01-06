@@ -1,4 +1,4 @@
-import graph as g, copy, math, sys
+import graph as g, copy, math, sys, time, csv
 
 # Solve an instance of the SDCTOP problem
 
@@ -66,7 +66,6 @@ def initial_sol(G, all_routes, num_customers, v_capacity, num_vehicles, time_lim
     # Display selected routes and build initial solution
     solution[tuple(selected_routes.keys())] = {"profit" : total_profit, "demand" : total_delivered, "weight" : total_time}
     print("Initial solution:\n{}\n".format(solution))
-    g.create_cycles(G, selected_routes)
     return solution, selected_routes
 
 # Find the neighbourhood of a given solution. The neighborhood is built upon the selected
@@ -266,14 +265,69 @@ def tabu_search(G, all_routes, num_customers, v_capacity, num_vehicles, time_lim
             else:
                 non_improving += 1
     
-    print("Best solution:\n{}\n".format(best_sol))
-    g.create_cycles(G, best_sol)
+    print("Best solution selected routes:\n{}\n".format(best_sol))
     # After meeting the stop criterion, return the best solution
     return best_sol
 
-def solve(G, all_routes, num_customers, v_capacity, num_vehicles, time_lim, tenure):
+def best_solution_info(G, v_capacity, num_vehicles, time_lim, tenure, init_sol, best_sol, runtime, instance):
+    best_sol_profit, best_sol_weight, best_sol_demand = 0, 0, 0
+    best_sol_info = {}
+
+    graph_profit = G.graph["profit"]
+    graph_demand = G.graph["demand"]
+    graph_weight = G.graph["weight"]
+
+    for route in best_sol:
+        best_sol_profit += best_sol[route]["profit"]
+        best_sol_weight += best_sol[route]["weight"]
+        best_sol_demand += best_sol[route]["demand"]
+
+    print("Procedure completed, showing results:\n")
+    num_customers = len(G.nodes) - 1
+    print("Number of customers = {}\n".format(num_customers))
+    best_sol_info[tuple(best_sol.keys())] = {"profit" : best_sol_profit, "demand" : best_sol_demand, "weight" : best_sol_weight}
+    print("Initial solution:\n{}\nBest solution:\n{}\nRuntime(s) = {}\n".format(init_sol, best_sol_info, runtime))
+
+    init_sol_attr = list(init_sol.values())[0]
+    init_sol_profit = init_sol_attr["profit"]
+    init_sol_weight = init_sol_attr["weight"]
+    init_sol_demand = init_sol_attr["demand"]
+
+    init_profit_percent = (init_sol_profit / graph_profit) * 100
+    init_demand_percent = (init_sol_demand / graph_demand) * 100
+    init_weight_percent = (init_sol_weight / graph_weight) * 100
+
+    print("Initial and best solution performance compared (% of the network):\n")
+    print("Initial profit collected = {}%".format(init_profit_percent))
+    print("Initial demand served = {}%".format(init_demand_percent))
+    print("Initial time spent = {}%\n".format(init_weight_percent))
+
+    best_profit_percent = (best_sol_profit / graph_profit) * 100
+    best_demand_percent = (best_sol_demand / graph_demand) * 100
+    best_weight_percent = (best_sol_weight / graph_weight) * 100
+
+    print("Best profit collected = {}%".format(best_profit_percent))
+    print("Best demand served = {}%".format(best_demand_percent))
+    print("Best time spent = {}%\n".format(best_weight_percent))
+
+    profit_improve = ((best_sol_profit / init_sol_profit) - 1) * 100
+    print("Profit improvement from initial to best solution = {}%".format(profit_improve))
+
+    with open("results.csv", "a", newline = "") as file:
+        writer = csv.writer(file)
+        writer.writerow(["Instance", "#Customers", "Capacity", "#Vehicles", "Time Limit", "Solution", "Runtime(s)", "Tenure", "Routes", "Solution profit", "Solution demand", "Solution time", "Profit(%)", "Demand(%)", "Time(%)", "Profit improvement(%)"])
+        writer.writerow([instance, num_customers, v_capacity, num_vehicles, time_lim, "Initial", "", "", list(init_sol.keys()), init_sol_profit, init_sol_demand, init_sol_weight, init_profit_percent, init_demand_percent, init_weight_percent, ""])
+        writer.writerow([instance, num_customers, v_capacity, num_vehicles, time_lim, "Best", runtime, tenure, list(best_sol.keys()), best_sol_profit, best_sol_demand, best_sol_weight, best_profit_percent, best_demand_percent, best_weight_percent, profit_improve])
+        writer.writerow("")
+        file.close()
+
+def solve(G, all_routes, num_customers, v_capacity, num_vehicles, time_lim, tenure, instance = "random"):
+    start = time.time()
     all_routes2 = copy.deepcopy(all_routes)
     init_s, selected_routes = initial_sol(G, all_routes2, num_customers, v_capacity, num_vehicles, time_lim)
-    #neighborhood = find_neighborhood(G, all_routes, selected_routes)
     best_sol = tabu_search(G, all_routes, num_customers, v_capacity, num_vehicles, time_lim, selected_routes, tenure)
-    return init_s, best_sol
+    end = time.time()
+    runtime = end - start
+    best_solution_info(G, v_capacity, num_vehicles, time_lim, tenure, init_s, best_sol, runtime, instance)
+    g.create_cycles(G, selected_routes, True, "Initial Solution")
+    g.create_cycles(G, best_sol, True, "Best Solution")

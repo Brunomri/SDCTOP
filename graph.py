@@ -35,7 +35,7 @@ def create_graph(num_v, draw = False, save_graph = False):
     G.graph["weight"] = total_weight
 
     # Show graph information
-    if draw == True:
+    if draw:
         graph_info(G, save_graph, True)
     else:
         graph_info(G, save_graph, False)
@@ -43,7 +43,7 @@ def create_graph(num_v, draw = False, save_graph = False):
     return G
 
 # Create cycles in graph G based on a cycles attributes dictionary
-def create_cycles(G, all_cycles_attr, draw = False):
+def create_cycles(G, all_cycles_attr, draw = False, title = "Graph"):
     cycles = []
 
     # Create one cycle for each entry in the dictionary
@@ -79,8 +79,8 @@ def create_cycles(G, all_cycles_attr, draw = False):
         C.graph["demand"] = all_cycles_attr[cycle]["demand"]
         C.graph["weight"] = all_cycles_attr[cycle]["weight"]
 
-        if draw == True:
-            graph_info(C, True)
+        if draw:
+            graph_info(C, False, True, title)
         else:
             graph_info(C, False)
 
@@ -89,7 +89,7 @@ def create_cycles(G, all_cycles_attr, draw = False):
     return cycles
 
 # Print graph information
-def graph_info(G, save_graph, draw = False):
+def graph_info(G, save_graph, draw = False, title = "Graph"):
 
     weight = nx.get_edge_attributes(G, 'weight')
     print("-------------------------------------------")
@@ -100,17 +100,17 @@ def graph_info(G, save_graph, draw = False):
     print("Total weight = {}".format(G.graph["weight"]))
     print("-------------------------------------------\n")
 
-    draw_graph(G, save_graph, draw)
+    draw_graph(G, save_graph, draw, title)
 
 # Draw graph representation
-def draw_graph(G, save_graph, draw):
+def draw_graph(G, save_graph, draw, title = "Graph"):
     weight = nx.get_edge_attributes(G, 'weight')
     fig = plt.figure(figsize = (12, 12))
     nx.draw_networkx(G, pos = nx.circular_layout(G), with_labels=True, node_color ='green')
     nx.draw_networkx_edge_labels(G,pos = nx.circular_layout(G), edge_labels=weight)
     if save_graph:
         nx.write_gpickle(G, 'graph.gpl')
-    fig.canvas.set_window_title("Graph")
+    fig.canvas.set_window_title(title)
     if draw:
         plt.show()
 
