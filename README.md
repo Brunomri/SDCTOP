@@ -21,3 +21,4 @@ desenvolvido em Python implementa uma combinação de uma heurística Busca Tabu e 
 2. [The Team Orienteering Problem: Formulations and Branch-Cut and Price](https://core.ac.uk/download/pdf/62915615.pdf)
 3. [The Capacitated Team Orienteering and Profitable Tour Problems](https://www.researchgate.net/publication/220636563_The_Capacitated_Team_Orienteering_and_Profitable_Tour_Problems)
 4. [The capacitated team orienteering problem](https://ink.library.smu.edu.sg/cgi/viewcontent.cgi?article=5331&context=sis_research)
+5. [Networkx - Network Analysis in Python](https://networkx.org/)
