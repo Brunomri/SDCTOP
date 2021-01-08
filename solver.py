@@ -269,6 +269,7 @@ def tabu_search(G, all_routes, num_customers, v_capacity, num_vehicles, time_lim
     # After meeting the stop criterion, return the best solution
     return best_sol
 
+# Show detailed procedure information on the console and append the results to the results.csv file
 def best_solution_info(G, v_capacity, num_vehicles, time_lim, tenure, init_sol, best_sol, runtime, instance):
     best_sol_profit, best_sol_weight, best_sol_demand = 0, 0, 0
     best_sol_info = {}
@@ -311,8 +312,9 @@ def best_solution_info(G, v_capacity, num_vehicles, time_lim, tenure, init_sol, 
     print("Best time spent = {}%\n".format(best_weight_percent))
 
     profit_improve = ((best_sol_profit / init_sol_profit) - 1) * 100
-    print("Profit improvement from initial to best solution = {}%".format(profit_improve))
+    print("Profit improvement from initial to best solution = {}%\n".format(profit_improve))
 
+    # Append instance results to the results.csv file
     with open("results.csv", "a", newline = "") as file:
         writer = csv.writer(file)
         writer.writerow(["Instance", "#Customers", "Capacity", "#Vehicles", "Time Limit", "Solution", "Runtime(s)", "Tenure", "Routes", "Solution profit", "Solution demand", "Solution time", "Profit(%)", "Demand(%)", "Time(%)", "Profit improvement(%)"])
@@ -321,6 +323,7 @@ def best_solution_info(G, v_capacity, num_vehicles, time_lim, tenure, init_sol, 
         writer.writerow("")
         file.close()
 
+# Apply the initial solution and tabu search procedures to an instance and then show the results
 def solve(G, all_routes, num_customers, v_capacity, num_vehicles, time_lim, tenure, instance = "random"):
     start = time.time()
     all_routes2 = copy.deepcopy(all_routes)

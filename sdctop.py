@@ -1,9 +1,12 @@
 import sys, graph as g, solver as s, networkx as nx
 
 # Driver program
+
+# Check if user provided valid arguments
 if len(sys.argv) != 6 or (sys.argv[1] != '-c' and sys.argv[1] != '-g'):
     sys.exit("Usage: python sdctop.py -c <#customers> <vehicle_capacity> <#vehicles> <route_time_limit> OR python sdctop.py -g <gpl_graph_path> <vehicle_capacity> <#vehicles> <route_time_limit>")
 else:
+    # Choose the -c mode to create a new graph ou -g to import an existing graph acording to the user input
     if sys.argv[1] == "-c":
         num_customers = int(sys.argv[2])
     else:
@@ -17,9 +20,9 @@ else:
     if sys.argv[1] == "-g":
         print("Graph path: {}".format(graph_path))
         print("Number of customers: {}".format(num_customers-1))
-        print("Total graph profit = {}".format(G.graph["profit"]))
-        print("Total graph demand = {}".format(G.graph["demand"]))
-        print("Total graph weight = {}".format(G.graph["weight"]))
+        #print("Total graph profit = {}".format(G.graph["profit"]))
+        #print("Total graph demand = {}".format(G.graph["demand"]))
+        #print("Total graph weight = {}".format(G.graph["weight"]))
     else:
         print("Number of customers: {}".format(num_customers))
     print("Vehicle capacity: {}".format(v_capacity))
@@ -27,12 +30,16 @@ else:
     print("Route time limit: {}\n".format(time_lim))
 
     if num_customers >= 2 and v_capacity >= 1 and num_vehicles >= 1 and time_lim >= 1:
+        # If the graph needs to be created, the create_graph funcion is called first. Then all_routes will find
+        # all the possible cycles in the graph which start in vertex 0 and solve will try to solve the instance
         if sys.argv[1] == "-c":
             G = g.create_graph(num_customers + 1, True, True)
             all_routes = g.get_all_cycles_attr(G, 0)
             s.solve(G, all_routes, num_customers, v_capacity, num_vehicles, time_lim, 10)
         else:
-            g.draw_graph(G, False, True)
+            #g.draw_graph(G, False, True)
+            print("Show graph information")
+            g.graph_info(G, False, True)
             all_routes = g.get_all_cycles_attr(G, 0)
             s.solve(G, all_routes, num_customers, v_capacity, num_vehicles, time_lim, 10, graph_path)
     else:
